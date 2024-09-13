@@ -1,4 +1,4 @@
-"use client"
+
 
 import { DotsHorizontalIcon } from "@radix-ui/react-icons"
 import { Row } from "@tanstack/react-table"
