@@ -1,78 +1,35 @@
-import React, { useEffect, useState } from 'react';
-import { collection, query, where, getDocs, updateDoc, addDoc, doc } from 'firebase/firestore';
-import { db } from '@/firebase/FirebaseConfig';
+import { useEffect, useState } from 'react';
+import { collection, getDocs, updateDoc, arrayUnion, doc } from 'firebase/firestore';
+import { auth, db } from '@/firebase/FirebaseConfig';
 import { Card, CardContent } from '@/components/ui/card';
 import { LiaRupeeSignSolid } from "react-icons/lia";
 import { useDispatch } from 'react-redux';
 import { addToCart } from '@/redux/slice/CartSlice';
+import { addToWishlist } from '@/redux/slice/whishlistSlice';
+import { showSuccessToast } from '@/commanComponents/CommanToast';
+import { FaRegHeart } from "react-icons/fa";
+
+// For accessing logged-in user info
 
 interface Product {
   id: string;
   name: string;
   description: string;
-  quantity: number;  // Changed to number for consistency
+  quantity: number;
   category: string;
   brand: string;
-  price: number;  // Changed to number for consistency
-  discountedPrice: number;  // Changed to number for consistency
-  costPrice: number;  // Changed to number for consistency
+  price: number;
+  discountedPrice: number;
+  costPrice: number;
   img: string;
 }
 
-interface CartItem {
-  id: string;
-  name: string;
-  price: number;  // Changed to number for consistency
-  img: string;
-  quantity: number;  // Changed to number for consistency
-  discountedPrice: number;  // Changed to number for consistency
-  costPrice: number;  // Changed to number for consistency
-}
-
-const ProductsList: React.FC = () => {
+const ProductsList = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const dispatch = useDispatch();
-
-  const saveCartToFirebase = async (cartItem: CartItem) => {
-    try {
-      const cartCollection = collection(db, 'cart');
-      const existingCartItemQuery = query(cartCollection, where("id", "==", cartItem.id));
-      const existingCartItemSnapshot = await getDocs(existingCartItemQuery);
-
-      if (!existingCartItemSnapshot.empty) {
-        // If the item exists, update its quantity
-        const cartDocId = existingCartItemSnapshot.docs[0].id;
-        const existingCartItemData = existingCartItemSnapshot.docs[0].data();
-        await updateDoc(doc(cartCollection, cartDocId), {
-          quantity: existingCartItemData.quantity + 1, // Updated to use number type
-        });
-      } else {
-        // If the item doesn't exist, add it to the collection
-        await addDoc(cartCollection, cartItem);
-      }
-
-      console.log('Cart item saved or updated in Firebase');
-    } catch (error) {
-      console.error('Error saving or updating cart item in Firebase:', error);
-    }
-  };
-
-  const handleAddToCart = (product: Product) => {
-    const cartItem: CartItem = {
-      id: product.id,
-      name: product.name,
-      price: product.costPrice,
-      img: product.img,
-      quantity: 1, // Start with quantity 1, type number
-      discountedPrice: product.discountedPrice,
-      costPrice: product.costPrice,
-    };
-
-    dispatch(addToCart(cartItem));
-    saveCartToFirebase(cartItem);
-  };
+  const user = auth.currentUser;
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -95,6 +52,60 @@ const ProductsList: React.FC = () => {
     fetchProducts();
   }, []);
 
+  const handleAddToCart = async (product: Product) => {
+    const cartItem = {
+      id: product.id,
+      name: product.name,
+      price: product.costPrice,
+      img: product.img,
+      quantity: 1,
+      discountedPrice: product.discountedPrice,
+      costPrice: product.costPrice,
+    };
+
+    // Add item to Redux state
+    dispatch(addToCart(cartItem));
+
+    // Add item to Firebase Firestore
+    if (user) {
+      try {
+        const userDocRef = doc(db, 'users', user.uid); // Reference to the logged-in user's document
+        await updateDoc(userDocRef, {
+          cart: arrayUnion(cartItem) // Add the cartItem to the cart array
+        });
+        console.log("Item added to cart in Firebase");
+      } catch (error) {
+        console.error("Error adding item to cart: ", error);
+      }
+    }
+  };
+
+  const handleAddToWishlist = async (product: Product) => {
+    const wishlistItem = {
+      id: product.id,
+      name: product.name,
+      price: product.costPrice,
+      img: product.img,
+      discountedPrice: product.discountedPrice,
+      costPrice: product.costPrice,
+    };
+
+    dispatch(addToWishlist(wishlistItem));
+    showSuccessToast('Product added to wishlist');
+
+    if (user) {
+      try {
+        const userDocRef = doc(db, 'Users', user.uid); // Reference to the logged-in user's document
+        await updateDoc(userDocRef, {
+          wishlist: arrayUnion(product.id), // Add the product ID to the wishlist array
+        });
+        console.log("Product added to wishlist in Firebase");
+      } catch (error) {
+        console.error("Error adding product to wishlist: ", error);
+      }
+    }
+  };
+
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -108,9 +119,9 @@ const ProductsList: React.FC = () => {
       <h2 className="text-2xl font-bold mb-4">Products List</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 px-4">
         {products.map(product => (
-          <Card key={product.id}>
+          <Card key={product.id} className='w-full'>
             <CardContent>
-              <div>
+              <div className=''>
                 <img src={product.img} alt={product.name} className="mt-2 w-full h-[150px] object-cover" />
               </div>
               <h3 className="text-sm font-semibold">{product.name}</h3>
@@ -126,9 +137,12 @@ const ProductsList: React.FC = () => {
                   </p>
                 </div>
               </div>
-              <button onClick={() => handleAddToCart(product)} className="mt-4 bg-gray-800 hover:bg-gray-900 text-white text-xs font-normal py-1 px-4 rounded">
-                Add to Cart
-              </button>
+              <div className='flex items-center justify-between gap-4'>
+                <button onClick={() => handleAddToCart(product)} className="mt-4 bg-gray-800 hover:bg-gray-900 text-white text-xs font-normal py-1 px-4 rounded">
+                  Add to Cart
+                </button>
+                <FaRegHeart onClick={() => handleAddToWishlist(product)} className='mt-4' />
+              </div>
             </CardContent>
           </Card>
         ))}

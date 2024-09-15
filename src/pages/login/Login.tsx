@@ -32,11 +32,13 @@ const Login = () => {
         console.log("User data from Firestore:", userData);
 
         // Check if the user has the isAdmin field
-        const isAdmin = userData.isAdmin || false;
-        console.log("Is Admin: ", isAdmin);
+        const isAdmin = userData.isAdmin === true;
+        const name = userData.name || ''; // get name from firebase 
+        navigate("/admin/dashboard/AdminDashboard");
+        // console.log("Is Admin: ", isAdmin);
 
         // Store user data in cookies
-        Cookies.set("user", JSON.stringify({ email: user.email, isAdmin }));
+        Cookies.set("user", JSON.stringify({name, email: user.email, isAdmin }));
         console.log("User data stored in cookies");
 
         // Get user token
@@ -47,14 +49,16 @@ const Login = () => {
 
         // Navigate based on user role
         if (isAdmin) {
-          console.log("Navigating to /admin/dashboard");
-          navigate("/admin/dashboard");
+          // console.log("Navigating to /admin/dashboard");
+          navigate("/admin/dashboard/Home");
+          showSuccessToast('Login successful!');
         } else {
-          console.log("Navigating to /");
+          // console.log("Navigating to /");
           navigate("/");
+          showSuccessToast('Login successful!');
         }
 
-        showSuccessToast('Login successful!');
+       
       } else {
         console.error("User document not found in Firestore.");
         throw new Error("User data not found.");

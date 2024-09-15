@@ -1,5 +1,11 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
+interface Coupon {
+  name: string;
+  code: string;
+  discount: number; // Percentage discount
+  minPurchasesAmount: number;
+}
 
 interface CartItem {
   id: string;
@@ -16,6 +22,7 @@ interface CartState {
   subprice: number;
   totalQuantity: number;
   totalPrice: number;
+  appliedCoupon: Coupon | null; // New field for coupon
 }
 
 const initialState: CartState = {
@@ -23,6 +30,7 @@ const initialState: CartState = {
   subprice: 0,
   totalQuantity: 0,
   totalPrice: 0,
+  appliedCoupon: null, // New field for coupon
 };
 
 const cartSlice = createSlice({
@@ -42,6 +50,12 @@ const cartSlice = createSlice({
       state.totalQuantity += 1;
       state.subprice += item.price;
       state.totalPrice += item.discountedPrice;
+
+      // Recalculate total with applied coupon (if any)
+      if (state.appliedCoupon && state.subprice >= state.appliedCoupon.minPurchasesAmount) {
+        const discount = (state.subprice * state.appliedCoupon.discount) / 100;
+        state.totalPrice = state.subprice - discount;
+      }
     },
     removeFromCart: (state, action: PayloadAction<string>) => {
       const itemId = action.payload;
@@ -54,6 +68,12 @@ const cartSlice = createSlice({
         state.totalPrice -= item.discountedPrice * item.quantity;
         state.items.splice(itemIndex, 1);
       }
+
+      // Recalculate total with applied coupon (if any)
+      if (state.appliedCoupon && state.subprice >= state.appliedCoupon.minPurchasesAmount) {
+        const discount = (state.subprice * state.appliedCoupon.discount) / 100;
+        state.totalPrice = state.subprice - discount;
+      }
     },
     increment: (state, action: PayloadAction<string>) => {
       const itemId = action.payload;
@@ -64,6 +84,12 @@ const cartSlice = createSlice({
         state.totalQuantity += 1;
         state.subprice += item.price;
         state.totalPrice += item.discountedPrice;
+
+        // Recalculate total with applied coupon (if any)
+        if (state.appliedCoupon && state.subprice >= state.appliedCoupon.minPurchasesAmount) {
+          const discount = (state.subprice * state.appliedCoupon.discount) / 100;
+          state.totalPrice = state.subprice - discount;
+        }
       }
     },
     decrement: (state, action: PayloadAction<string>) => {
@@ -81,15 +107,34 @@ const cartSlice = createSlice({
         state.subprice -= item.price;
         state.totalPrice -= item.discountedPrice;
       }
+
+      // Recalculate total with applied coupon (if any)
+      if (state.appliedCoupon && state.subprice >= state.appliedCoupon.minPurchasesAmount) {
+        const discount = (state.subprice * state.appliedCoupon.discount) / 100;
+        state.totalPrice = state.subprice - discount;
+      }
     },
     clearCart: (state) => {
       state.items = [];
       state.totalQuantity = 0;
       state.subprice = 0;
       state.totalPrice = 0;
+      state.appliedCoupon = null; // Clear coupon when the cart is cleared
+    },
+    applyCoupon: (state, action: PayloadAction<Coupon>) => {
+      const coupon = action.payload;
+
+      if (state.subprice >= coupon.minPurchasesAmount) {
+        state.appliedCoupon = coupon;
+        const discount = (state.subprice * coupon.discount) / 100;
+        state.totalPrice = state.subprice - discount;
+      } else {
+        // If coupon doesn't meet the minimum purchase amount
+        state.appliedCoupon = null;
+      }
     },
   },
 });
 
-export const { addToCart, removeFromCart, increment, decrement, clearCart } = cartSlice.actions;
+export const { addToCart, removeFromCart, increment, decrement, clearCart, applyCoupon } = cartSlice.actions;
 export default cartSlice.reducer;

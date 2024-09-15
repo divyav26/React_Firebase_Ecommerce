@@ -50,13 +50,15 @@ const Navbar = () => {
                 <Input placeholder="Search..." className="w-full" />
               </div>
               <div className="text-xl">
+                <NavLink to="/wishlist">
                 <IoIosHeartEmpty />
+                </NavLink>
               </div>
               <NavLink to="/cart" className="text-white text-lg flex justify-center items-center">
                 <BsCartCheck />
                 <span className="text-sm text-white">({totalQuantity})</span>
               </NavLink>
-              <DropdownMenu>
+                <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <div className=" p-1 rounded cursor-pointer hover:text-text-red transition-all ">
                 <IoPersonCircleOutline className="text-xl  " />
@@ -84,14 +86,14 @@ const Navbar = () => {
                 </p>
               </DropdownMenuItem>
             </DropdownMenuContent>
-          </DropdownMenu>
+               </DropdownMenu>
             </div>
           ) : (
             <div className="flex items-center gap-4">
-              <NavLink to="/login" className="text-black flex justify-center items-center">
+              <NavLink to="/login" className=" flex justify-center items-center">
                 Login
               </NavLink>
-              <NavLink to="/register" className="text-black flex justify-center items-center">
+              <NavLink to="/register" className=" flex justify-center items-center">
                 Register
               </NavLink>
             </div>

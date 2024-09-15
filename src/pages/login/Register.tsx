@@ -26,7 +26,7 @@ const Register = () => {
       // Create user in Firebase Auth
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-      console.log('User created:', user);
+      // console.log('User created:', user);
 
       // Store user data in Firestore
       await setDoc(doc(db, 'users', user.uid), {
@@ -35,12 +35,11 @@ const Register = () => {
         isAdmin: false, // Default value for isAdmin, change if needed
         createdAt: new Date(), // Store the timestamp of user creation
       });
-      console.log('User data stored in Firestore');
-
-      showSuccessToast('Registration successful!');
+      // console.log('User data stored in Firestore');
+      showSuccessToast('Registration successfully completed!!!');
       navigate('/login');
     } catch (error) {
-      console.error("Error registering user:", error);
+      // console.error("Error registering user:", error);
       showErrorToast('Registration failed. Please try again.');
     }
   };
