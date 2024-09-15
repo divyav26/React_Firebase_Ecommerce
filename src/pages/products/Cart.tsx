@@ -33,6 +33,8 @@ const Cart: React.FC = () => {
   const navigate = useNavigate();
   const user = auth.currentUser;
 
+  // Calculate subtotal
+  const subtotal = cartItems.reduce((total: number, item: any) => total + item.price * item.quantity, 0);
   // Fetch coupons from Firestore
   const fetchCoupons = async () => {
     try {
@@ -41,7 +43,7 @@ const Cart: React.FC = () => {
       const couponsList = couponsSnapshot.docs.map((doc) => doc.data() as Coupon);
 
       // Filter coupons with discount greater than 23%
-      const validCoupons = couponsList.filter((coupon) => coupon.discount > 23);
+      const validCoupons = couponsList.filter((coupon) => coupon.discount > 19);
       setCoupons(validCoupons);
     } catch (error) {
       console.error('Error fetching coupons: ', error);
@@ -219,26 +221,29 @@ const Cart: React.FC = () => {
               </form>
     
               {/* Coupons Section */}
-              <div className="mt-6">
+              <div className="mt-6 px-2">
                 <h3 className="text-lg font-medium mb-2">Available Coupons</h3>
                 {loading ? (
                   <p>Loading coupons...</p>
                 ) : (
-                  <ul>
+                  <ul className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1'>
                     {coupons.map((coupon: Coupon) => (
-                      <li key={coupon.code} className="mb-2">
-                        <div className="flex justify-between items-center">
-                          <p>
-                            <strong>{coupon.name}</strong>: {coupon.discount}% off, min purchase: {coupon.minPurchasesAmount}
-                          </p>
-                          <button
-                            onClick={() => handleApplyCoupon(coupon.code)}
-                            className="bg-indigo-600 text-white px-4 py-1 rounded-md"
-                          >
-                            Apply
-                          </button>
+                      <div>
+                        <div className="bg-white  text-black p-2 rounded-sm border shadow w-[250px] ">
+                            <div className="text-sm font-bold mb-4">Special Offer!</div>
+                            <div className="text-xs">Get <span className="text-yellow-400 font-bold">{coupon.discount}%</span> off on your next purchase!</div>
+                            <div className="text-xs">Minimum purchase amount: <span className="text-yellow-400 font-bold">${coupon.minPurchasesAmount}</span></div>
+                            <div className="text-xs my-2">Name: {coupon.name}</div>
+                            <div className="bg-white text-gray-800 rounded-lg px-2 py-1 flex items-center justify-between w-[200px]">
+                                <span className="text-xs font-semibold">{coupon.code}</span>
+                                <p className={`px-2 py-1 text-xs text-gray-400 rounded-md ${subtotal < coupon.minPurchasesAmount ? ' cursor-not-allowed' : 'bg-indigo-600 cursor-pointer hover:bg-indigo-700'}`} onClick={() => handleApplyCoupon(coupon.code)}>Apply</p>
+                            </div>
+                            <div className="text-xs my-2">
+                                {/* <p>Valid until <span className="font-semibold">December 31, 2023</span></p> */}
+                                <p>Terms and conditions apply.</p>
+                            </div>
                         </div>
-                      </li>
+                      </div>
                     ))}
                   </ul>
                 )}
