@@ -158,87 +158,97 @@ const Cart: React.FC = () => {
 
   return (
     <Layout>
-      <div className="bg-white h-[90vh] overflow-y-auto">
-        <div className="w-full py-2 px-4 lg:px-2">
-          <form className="mt-4">
-            <div className="flex gap-6">
-              {/* Cart Items */}
-              <div className="w-[60%]">
-                <h2 className="text-lg text-center">Items in your shopping cart</h2>
-                <ul role="list" className="border-t border-b border-gray-200 divide-y divide-gray-200">
-                  {cartItems.map((item: CartItem) => (
-                    <li key={item.id} className="flex py-6 sm:py-10">
-                      <div className="flex-shrink-0">
-                        <img src={item.img} alt={item.name} className="w-24 h-24 rounded-lg object-center object-cover" />
-                      </div>
-                      <div className="ml-4 flex-1 flex flex-col justify-between">
-                        <div>
-                          <div className="flex justify-between">
-                            <div className="pr-6">
-                              <h3 className="text-sm font-medium">{item.name}</h3>
-                              <p className="mt-1 text-sm text-gray-500">${item.price}</p>
-                              <p className="mt-1 text-sm text-gray-500">{item.discountedPrice}% off</p>
+      {
+        cartItems.length === 0 ?
+          (<div className='h-screen flex flex-col justify-center items-center'>
+            <img src='https://cdni.iconscout.com/illustration/premium/thumb/empty-cart-10681467-8593283.png' alt='empty cart' className='w-[300px] h-[300px] object-cover' /> 
+            <h2 className='text-2xl font-bold mt-4 text-red-800'>Your cart is empty.</h2>
+          </div>)
+          : (
+            <div className="bg-white h-[90vh] overflow-y-auto">
+            <div className="w-full py-2 px-4 lg:px-2">
+              <form className="mt-4">
+                <div className="flex gap-6">
+                  {/* Cart Items */}
+                  <div className="w-[60%]">
+                    <h2 className="text-lg text-center">Items in your shopping cart</h2>
+                    <ul role="list" className="border-t border-b border-gray-200 divide-y divide-gray-200">
+                      {cartItems.map((item: CartItem) => (
+                        <li key={item.id} className="flex py-6 sm:py-10">
+                          <div className="flex-shrink-0">
+                            <img src={item.img} alt={item.name} className="w-24 h-24 rounded-lg object-center object-cover" />
+                          </div>
+                          <div className="ml-4 flex-1 flex flex-col justify-between">
+                            <div>
+                              <div className="flex justify-between">
+                                <div className="pr-6">
+                                  <h3 className="text-sm font-medium">{item.name}</h3>
+                                  <p className="mt-1 text-sm text-gray-500">${item.price}</p>
+                                  <p className="mt-1 text-sm text-gray-500">{item.discountedPrice}% off</p>
+                                </div>
+                                <p className="text-sm font-medium text-red-900 text-right">${item.price * item.quantity}</p>
+                              </div>
+                              <div className="flex items-center mt-2">
+                                <button type="button" onClick={() => handleDecrement(item.id)} className="px-2 py-1 border rounded-md">-</button>
+                                <span className="mx-2">{item.quantity}</span>
+                                <button type="button" onClick={() => handleIncrement(item.id)} className="px-2 py-1 border rounded-md">+</button>
+                              </div>
                             </div>
-                            <p className="text-sm font-medium text-red-900 text-right">${item.price * item.quantity}</p>
                           </div>
-                          <div className="flex items-center mt-2">
-                            <button type="button" onClick={() => handleDecrement(item.id)} className="px-2 py-1 border rounded-md">-</button>
-                            <span className="mx-2">{item.quantity}</span>
-                            <button type="button" onClick={() => handleIncrement(item.id)} className="px-2 py-1 border rounded-md">+</button>
-                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+    
+                  {/* Order Summary */}
+                  <div className="w-[40%]">
+                    <h3 className="text-lg font-medium">Order Summary</h3>
+                    <p>Subtotal: ${calculateTotalPrice()}</p>
+                    <p>Shipping: $5</p>
+                    <p>Tax: $8.32</p>
+                    <p>Total: ${calculateTotalPrice()}</p>
+                    <button
+                      type="button"
+                      onClick={handleCheckout}
+                      className="w-full bg-indigo-600 border border-transparent rounded-md shadow-sm py-3 px-4 text-base font-medium text-white hover:bg-indigo-700"
+                    >
+                      Checkout
+                    </button>
+                  </div>
+                </div>
+              </form>
+    
+              {/* Coupons Section */}
+              <div className="mt-6">
+                <h3 className="text-lg font-medium mb-2">Available Coupons</h3>
+                {loading ? (
+                  <p>Loading coupons...</p>
+                ) : (
+                  <ul>
+                    {coupons.map((coupon: Coupon) => (
+                      <li key={coupon.code} className="mb-2">
+                        <div className="flex justify-between items-center">
+                          <p>
+                            <strong>{coupon.name}</strong>: {coupon.discount}% off, min purchase: {coupon.minPurchasesAmount}
+                          </p>
+                          <button
+                            onClick={() => handleApplyCoupon(coupon.code)}
+                            className="bg-indigo-600 text-white px-4 py-1 rounded-md"
+                          >
+                            Apply
+                          </button>
                         </div>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Order Summary */}
-              <div className="w-[40%]">
-                <h3 className="text-lg font-medium">Order Summary</h3>
-                <p>Subtotal: ${calculateTotalPrice()}</p>
-                <p>Shipping: $5</p>
-                <p>Tax: $8.32</p>
-                <p>Total: ${calculateTotalPrice()}</p>
-                <button
-                  type="button"
-                  onClick={handleCheckout}
-                  className="w-full bg-indigo-600 border border-transparent rounded-md shadow-sm py-3 px-4 text-base font-medium text-white hover:bg-indigo-700"
-                >
-                  Checkout
-                </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {error && <p className="text-red-600">{error}</p>}
               </div>
             </div>
-          </form>
-
-          {/* Coupons Section */}
-          <div className="mt-6">
-            <h3 className="text-lg font-medium mb-2">Available Coupons</h3>
-            {loading ? (
-              <p>Loading coupons...</p>
-            ) : (
-              <ul>
-                {coupons.map((coupon: Coupon) => (
-                  <li key={coupon.code} className="mb-2">
-                    <div className="flex justify-between items-center">
-                      <p>
-                        <strong>{coupon.name}</strong>: {coupon.discount}% off, min purchase: {coupon.minPurchasesAmount}
-                      </p>
-                      <button
-                        onClick={() => handleApplyCoupon(coupon.code)}
-                        className="bg-indigo-600 text-white px-4 py-1 rounded-md"
-                      >
-                        Apply
-                      </button>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
-            {error && <p className="text-red-600">{error}</p>}
           </div>
-        </div>
-      </div>
+          )
+      }
+     
     </Layout>
   );
 };

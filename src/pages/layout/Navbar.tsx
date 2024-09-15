@@ -8,9 +8,11 @@ import { IoIosHeartEmpty } from "react-icons/io";
 import { IoPersonCircleOutline } from "react-icons/io5";
 import { MdOutlinePowerSettingsNew } from "react-icons/md";
 import { useSelector } from "react-redux";
+import { IoBagCheckOutline } from "react-icons/io5";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 const Navbar = () => {
+
   const isLoggedIn = !!Cookies.get("user_token");
   const navigate = useNavigate();
   const totalQuantity = useSelector((state: any) => state.cart.totalQuantity);
@@ -57,6 +59,10 @@ const Navbar = () => {
               <NavLink to="/cart" className="text-white text-lg flex justify-center items-center">
                 <BsCartCheck />
                 <span className="text-sm text-white">({totalQuantity})</span>
+              </NavLink>
+              <NavLink to="/orderhistory" className="text-white text-lg flex justify-center items-center">
+                <IoBagCheckOutline />
+              
               </NavLink>
                 <DropdownMenu>
             <DropdownMenuTrigger asChild>

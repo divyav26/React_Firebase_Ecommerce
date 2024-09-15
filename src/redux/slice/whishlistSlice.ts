@@ -40,4 +40,5 @@ const wishlistSlice = createSlice({
 });
 
 export const { addToWishlist, removeFromWishlist, clearWishlist } = wishlistSlice.actions;
+export const selectWishlistCount = (state: any) => state.wishlist.items.length;
 export default wishlistSlice.reducer;
