@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { collection, getDocs, updateDoc, arrayUnion, doc } from 'firebase/firestore';
+import { collection, getDocs, updateDoc, arrayUnion, doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '@/firebase/FirebaseConfig';
 import { Card, CardContent } from '@/components/ui/card';
 import { LiaRupeeSignSolid } from "react-icons/lia";
@@ -58,27 +58,51 @@ const ProductsList = () => {
       name: product.name,
       price: product.costPrice,
       img: product.img,
-      quantity: 1,
+      quantity: 1, // Default quantity of 1 for the initial add
       discountedPrice: product.discountedPrice,
       costPrice: product.costPrice,
     };
-
-    // Add item to Redux state
-    dispatch(addToCart(cartItem));
-
-    // Add item to Firebase Firestore
+  
     if (user) {
       try {
-        const userDocRef = doc(db, 'users', user.uid); // Reference to the logged-in user's document
-        await updateDoc(userDocRef, {
-          cart: arrayUnion(cartItem) // Add the cartItem to the cart array
-        });
-        console.log("Item added to cart in Firebase");
+        const userDocRef = doc(db, 'users', user.uid);
+        const userDocSnapshot = await getDoc(userDocRef);
+        const userData = userDocSnapshot.data();
+  
+        // Check if cart exists in user's document and if the product is already in the cart
+        const existingCart = userData?.cart || [];
+        const existingProduct = existingCart.find((item: any) => item.id === product.id);
+  
+        if (existingProduct) {
+          // Update quantity if the product is already in the cart
+          const updatedCart = existingCart.map((item: any) =>
+            item.id === product.id
+              ? { ...item, quantity: item.quantity + 1 } // Increment quantity by 1
+              : item
+          );
+  
+          await updateDoc(userDocRef, {
+            cart: updatedCart,
+          });
+  
+          console.log("Product quantity updated in Firebase cart");
+        } else {
+          // Add new product if not already in cart
+          await updateDoc(userDocRef, {
+            cart: arrayUnion(cartItem),
+          });
+  
+          console.log("Product added to Firebase cart");
+        }
+  
+        // Add item to Redux state (if applicable)
+        dispatch(addToCart(cartItem));
       } catch (error) {
-        console.error("Error adding item to cart: ", error);
+        console.error("Error adding/updating item in cart: ", error);
       }
     }
   };
+  
 
   const handleAddToWishlist = async (product: Product) => {
     const wishlistItem = {
@@ -95,10 +119,11 @@ const ProductsList = () => {
 
     if (user) {
       try {
-        const userDocRef = doc(db, 'Users', user.uid); // Reference to the logged-in user's document
+        const userDocRef = doc(db, 'users', user.uid); // Reference to the logged-in user's document
         await updateDoc(userDocRef, {
           wishlist: arrayUnion(product.id), // Add the product ID to the wishlist array
         });
+        console.log("userDocRef", userDocRef)
         console.log("Product added to wishlist in Firebase");
       } catch (error) {
         console.error("Error adding product to wishlist: ", error);

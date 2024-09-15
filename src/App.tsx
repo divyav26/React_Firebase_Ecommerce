@@ -10,6 +10,7 @@ import Cart from './pages/products/Cart'
 import WishList from './pages/products/WishList'
 import AdminHome from './pages/admin/dashboard/AdminHome'
 import Orders from './pages/products/Orders'
+import OrderHistory from './pages/products/OrderHistory'
 function App() {
 
 
@@ -23,6 +24,7 @@ function App() {
         <Route path='/cart' element={<Cart />} />
         <Route path="/wishlist" element={<WishList />} />
         <Route path="/order/:orderId" element={<Orders />} />
+        <Route path="/orderhistory" element={<OrderHistory />} />
         <Route path='/admin/dashboard/addproducts' element={<AddProducts />} />
 
         <Route path="/admin/dashboard/Home" element={<AdminHome/>}>

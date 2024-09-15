@@ -3,8 +3,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { arrayUnion, collection, doc, getDoc, getDocs, setDoc, updateDoc } from 'firebase/firestore';
 import { auth, db } from '@/firebase/FirebaseConfig';
 import { increment, decrement, clearCart } from '@/redux/slice/CartSlice';
-import { showSuccessToast, showErrorToast } from '@/commanComponents/CommanToast'; 
-import Layout from '../layout/Layout'; 
+import { showSuccessToast, showErrorToast } from '@/commanComponents/CommanToast';
+import Layout from '../layout/Layout';
 import { useNavigate } from 'react-router-dom';
 
 interface CartItem {
@@ -32,8 +32,8 @@ const Cart: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const user = auth.currentUser;
-  
 
+  // Fetch coupons from Firestore
   const fetchCoupons = async () => {
     try {
       const couponsCollection = collection(db, 'Coupon');
@@ -50,8 +50,8 @@ const Cart: React.FC = () => {
       setLoading(false);
     }
   };
-  useEffect(() => {
 
+  useEffect(() => {
     fetchCoupons();
   }, []);
 
@@ -96,7 +96,7 @@ const Cart: React.FC = () => {
       return;
     }
 
-    const userId = user.uid; // Ensure user ID is properly accessed
+    const userId = user.uid;
     const order_id = doc(collection(db, 'Orders')).id;  // Generate a new order ID
 
     const order = {
@@ -114,7 +114,7 @@ const Cart: React.FC = () => {
       await setDoc(doc(db, 'Orders', order_id), order);
 
       // 2. Add the order reference to the user's document
-      const userRef = doc(db, 'Users', userId);
+      const userRef = doc(db, 'users', userId);
 
       // Check if the user document exists
       const userDoc = await getDoc(userRef);
@@ -123,27 +123,38 @@ const Cart: React.FC = () => {
         await setDoc(userRef, { orders: [] });
       }
 
-      // Update the user's orders array
+      // Debug: Log the cart data before clearing
+      console.log('Before clearing, cart in Firebase:', userDoc.data()?.cart);
+
+      // Update the user's orders array and clear the cart
       await updateDoc(userRef, {
-        orders:arrayUnion({
+        orders: arrayUnion({
           order_id,
           date: order.date,
           total_items: order.total_items,
           final_price: order.final_price
-        })
+        }),
+        cart: []  // Clear the cart in Firebase
       });
 
-      // 3. Clear the cart after checkout
+      // Debug: Fetch and log the cart data after clearing
+      const updatedUserDoc = await getDoc(userRef);
+      console.log('After clearing, cart in Firebase:', updatedUserDoc.data()?.cart);
+
+      // 3. Clear the cart in Redux after successful checkout
       dispatch(clearCart());
 
       // 4. Redirect to the order confirmation page
       navigate(`/order/${order_id}`);
+
+      // 5. Show success toast
+      showSuccessToast('Order placed successfully! Cart has been cleared.');
+      
     } catch (error) {
       console.error("Error placing the order: ", error);
       showErrorToast("Failed to place the order.");
     }
   };
- 
 
   return (
     <Layout>
@@ -225,9 +236,6 @@ const Cart: React.FC = () => {
               </ul>
             )}
             {error && <p className="text-red-600">{error}</p>}
-
-            {/* Coupon Code Input */}
-            
           </div>
         </div>
       </div>

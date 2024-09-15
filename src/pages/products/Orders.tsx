@@ -1,7 +1,7 @@
 // src/pages/OrderPage.tsx
 
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/firebase/FirebaseConfig'; // Adjust Firebase import path
 import Layout from '../layout/Layout';
@@ -89,6 +89,10 @@ const Orders= () => {
               </li>
             ))}
           </ul>
+        </div>
+
+        <div className="mt-6">
+          <Link to="/orderhistory" className="text-indigo-600 font-medium">View Order History</Link>
         </div>
 
         <div className="mt-6">
