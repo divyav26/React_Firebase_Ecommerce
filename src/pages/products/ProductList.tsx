@@ -6,7 +6,7 @@ import { LiaRupeeSignSolid } from "react-icons/lia";
 import { useDispatch } from 'react-redux';
 import { addToCart } from '@/redux/slice/CartSlice';
 import { addToWishlist } from '@/redux/slice/whishlistSlice';
-import { showSuccessToast } from '@/commanComponents/CommanToast';
+import { showErrorToast, showSuccessToast } from '@/commanComponents/CommanToast';
 import { FaRegHeart } from "react-icons/fa";
 
 // For accessing logged-in user info
@@ -53,6 +53,10 @@ const ProductsList = () => {
   }, []);
 
   const handleAddToCart = async (product: Product) => {
+    if (!user) {
+      showErrorToast('User Not Login!!!.');
+      return;
+    }
     const cartItem = {
       id: product.id,
       name: product.name,
@@ -85,14 +89,14 @@ const ProductsList = () => {
             cart: updatedCart,
           });
   
-          console.log("Product quantity updated in Firebase cart");
+          showSuccessToast('Product added to cart');
         } else {
           // Add new product if not already in cart
           await updateDoc(userDocRef, {
             cart: arrayUnion(cartItem),
           });
   
-          console.log("Product added to Firebase cart");
+          showSuccessToast('Product added to cart');
         }
   
         // Add item to Redux state (if applicable)
@@ -105,6 +109,10 @@ const ProductsList = () => {
   
 
   const handleAddToWishlist = async (product: Product) => {
+    if (!user) {
+      showErrorToast('User Not Login!!!.');
+      return;
+    }
     const wishlistItem = {
       id: product.id,
       name: product.name,
