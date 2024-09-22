@@ -162,21 +162,27 @@ const Cart: React.FC = () => {
     <Layout>
       {
         cartItems.length === 0 ?
-          (<div className='h-screen flex flex-col justify-center items-center'>
-            <img src='https://cdni.iconscout.com/illustration/premium/thumb/empty-cart-10681467-8593283.png' alt='empty cart' className='w-[300px] h-[300px] object-cover' /> 
-            <h2 className='text-2xl font-bold mt-4 text-red-800'>Your cart is empty.</h2>
-          </div>)
+          (<div className="flex justify-center items-center min-h-screen w-full">
+            <div className='flex flex-col items-center justify-center'>
+            <iframe 
+              src="https://lottie.host/embed/ad7bdf26-4252-46ad-b81c-f99e939b71ce/dJ9imK28gY.json" 
+              className=" w-[300px] h-[300px]"
+            ></iframe>
+            <p className='text-2xl font-bold'>Your cart is empty.</p>
+            </div>
+          </div>
+    )
           : (
             <div className="bg-white h-[90vh] overflow-y-auto">
             <div className="w-full py-2 px-4 lg:px-2">
               <form className="mt-4">
-                <div className="flex gap-6">
+                <div className="lg:flex gap-6">
                   {/* Cart Items */}
-                  <div className="w-[60%]">
-                    <h2 className="text-lg text-center">Items in your shopping cart</h2>
+                  <div className="md:w-[60%]">
+                    <h2 className="text-lg text-center font-bold pb-2">Items in your shopping cart</h2>
                     <ul role="list" className="border-t border-b border-gray-200 divide-y divide-gray-200">
                       {cartItems.map((item: CartItem) => (
-                        <li key={item.id} className="flex py-6 sm:py-10">
+                        <li key={item.id} className="lg:flex py-6 sm:py-10">
                           <div className="flex-shrink-0">
                             <img src={item.img} alt={item.name} className="w-24 h-24 rounded-lg object-center object-cover" />
                           </div>
@@ -203,16 +209,16 @@ const Cart: React.FC = () => {
                   </div>
     
                   {/* Order Summary */}
-                  <div className="w-[40%]">
-                    <h3 className="text-lg font-medium">Order Summary</h3>
-                    <p>Subtotal: ${calculateTotalPrice()}</p>
-                    <p>Shipping: $5</p>
-                    <p>Tax: $8.32</p>
-                    <p>Total: ${calculateTotalPrice()}</p>
+                  <div className="md:w-[40%] text-xs py-6">
+                    <h3 className="text-sm font-medium">Order Summary</h3>
+                    <p className='py-1 flex items-center gap-2'>Subtotal ${calculateTotalPrice()}</p>
+                    <p className='py-1'>Shipping: $5</p>
+                    <p className='py-1'>Tax: $8.32</p>
+                    <p className='py-1'>Total: ${calculateTotalPrice()}</p>
                     <button
                       type="button"
                       onClick={handleCheckout}
-                      className="w-full bg-indigo-600 border border-transparent rounded-md shadow-sm py-3 px-4 text-base font-medium text-white hover:bg-indigo-700"
+                      className="w-full border rounded-md shadow-sm py-1 px-4 text-sm font-medium text-black "
                     >
                       Checkout
                     </button>
@@ -226,18 +232,18 @@ const Cart: React.FC = () => {
                 {loading ? (
                   <p>Loading coupons...</p>
                 ) : (
-                  <ul className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1'>
-                    {coupons.map((coupon: Coupon) => (
+                  <ul className='grid grid-cols-1 md::grid-cols-2 lg:grid-cols-3 gap-1'>
+                    {coupons.map((coupon: Coupon,index:any) => (
                       <div>
-                        <div className="bg-white  text-black p-2 rounded-sm border shadow w-[250px] ">
+                        <div key={index} className="bg-white  text-black p-2 rounded-sm border shadow w-[250px] ">
                             <div className="text-sm font-bold mb-4">Special Offer!</div>
-                            <div className="text-xs">Get <span className="text-yellow-400 font-bold">{coupon.discount}%</span> off on your next purchase!</div>
-                            <div className="text-xs">Minimum purchase amount: <span className="text-yellow-400 font-bold">${coupon.minPurchasesAmount}</span></div>
                             <div className="text-xs my-2">Name: {coupon.name}</div>
                             <div className="bg-white text-gray-800 rounded-lg px-2 py-1 flex items-center justify-between w-[200px]">
                                 <span className="text-xs font-semibold">{coupon.code}</span>
                                 <p className={`px-2 py-1 text-xs text-gray-400 rounded-md ${subtotal < coupon.minPurchasesAmount ? ' cursor-not-allowed' : 'bg-indigo-600 cursor-pointer hover:bg-indigo-700'}`} onClick={() => handleApplyCoupon(coupon.code)}>Apply</p>
                             </div>
+                            <div className="text-xs">Get <span className="text-red-600 font-bold">{coupon.discount}%</span> off on your next purchase!</div>
+                            <div className="text-xs">Minimum purchase amount: <span className="text-red-600 font-bold">${coupon.minPurchasesAmount}</span></div>
                             <div className="text-xs my-2">
                                 {/* <p>Valid until <span className="font-semibold">December 31, 2023</span></p> */}
                                 <p>Terms and conditions apply.</p>

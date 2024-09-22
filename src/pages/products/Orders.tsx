@@ -5,6 +5,7 @@ import { db } from '@/firebase/FirebaseConfig'; // Adjust Firebase import path
 import Layout from '../layout/Layout';
 import { Separator } from '@/components/ui/separator';
 import { BsCurrencyRupee } from "react-icons/bs";
+import { showSuccessToast } from '@/commanComponents/CommanToast';
 
 interface CartItem {
   id: string;
@@ -73,7 +74,7 @@ const Orders = () => {
     try {
       // Prepare the new order object
       const newOrder = {
-        order_id: orderId || 'NewOrderID', // Replace with your order ID logic
+        order_id: orderId , // Replace with your order ID logic
         date: new Date().toISOString(),
         total_items: order?.total_items || 0,
         final_price: order?.final_price || 0,
@@ -87,9 +88,13 @@ const Orders = () => {
 
       // Save the new order to Firebase
       await addDoc(collection(db, 'Orders'), newOrder);
+      console.log("newOrder---", newOrder)
+      setName('');
+      setAddress('');
+     
 
       // Redirect or notify user of successful order placement
-      alert('Order placed successfully!');
+      showSuccessToast('Order placed successfully!');
     } catch (error) {
       console.error('Error placing order:', error);
       setFormError('Failed to place order. Please try again.');

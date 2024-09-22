@@ -1,7 +1,7 @@
 import { toast, ToastOptions } from "react-toastify";
 
 const toastOptions: ToastOptions = {
-	position: "top-right",
+	position: "top-center",
 	autoClose: 3000,
 	draggable: true,
 	className: " !text-xs font-semibold !text-black !rounded-lg",

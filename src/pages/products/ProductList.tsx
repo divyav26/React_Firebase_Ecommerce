@@ -145,7 +145,15 @@ const ProductsList = () => {
   }, []);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div>
+      <div className="flex justify-center items-center min-h-screen w-full">
+        <iframe 
+          src="https://lottie.host/embed/999c2f54-db3d-44ba-bb2e-c97c303981a5/CPapgoqjur.json" 
+          className="rounded-lg "
+        ></iframe>
+      </div>
+
+    </div>;
   }
 
   if (error) {
@@ -155,7 +163,7 @@ const ProductsList = () => {
   return (
     <div>
       <h2 className="text-2xl font-bold mb-4">Products List</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 px-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 px-4">
         {products.map(product => (
           <Card key={product.id} className='w-full'>
             <CardContent>
