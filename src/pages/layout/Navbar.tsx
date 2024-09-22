@@ -19,7 +19,7 @@ const Navbar = () => {
 
   // Retrieve and parse user data from cookies
   const userData = Cookies.get("user") ? JSON.parse(Cookies.get("user")!) : null;
-  console.log("User data: ", userData);
+  // console.log("User data: ", userData);
 
   const handleLogout = async () => {
     Cookies.remove("user_id")

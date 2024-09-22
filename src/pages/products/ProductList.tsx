@@ -31,26 +31,25 @@ const ProductsList = () => {
   const dispatch = useDispatch();
   const user = auth.currentUser;
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const productsCollection = collection(db, 'products');
-        const productsSnapshot = await getDocs(productsCollection);
-        const productsList = productsSnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...(doc.data() as Omit<Product, 'id'>),
-        }));
-        setProducts(productsList);
-      } catch (error) {
-        console.error("Error fetching products: ", error);
-        setError("Failed to fetch products.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProducts();
-  }, []);
+  const fetchProducts = async () => {
+    try {
+      const productsCollection = collection(db, 'products');
+      const productsSnapshot = await getDocs(productsCollection);
+      const productsList = productsSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...(doc.data() as Omit<Product, 'id'>),
+        // ...doc.data(),
+      }));
+      console.log("productsList---", productsList)
+      setProducts(productsList);
+    } catch (error) {
+      console.error("Error fetching products: ", error);
+      setError("Failed to fetch products.");
+    } finally {
+      setLoading(false);
+    }
+  };
+ 
 
   const handleAddToCart = async (product: Product) => {
     if (!user) {
@@ -84,6 +83,7 @@ const ProductsList = () => {
               ? { ...item, quantity: item.quantity + 1 } // Increment quantity by 1
               : item
           );
+          console.log("updatedCart---", updatedCart)
   
           await updateDoc(userDocRef, {
             cart: updatedCart,
@@ -138,6 +138,11 @@ const ProductsList = () => {
       }
     }
   };
+
+  useEffect(() => {
+
+    fetchProducts();
+  }, []);
 
   if (loading) {
     return <div>Loading...</div>;
