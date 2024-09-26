@@ -1,25 +1,67 @@
 import { Input } from "@/components/ui/input";
-import { auth } from "@/firebase/FirebaseConfig";
+import { auth, db } from "@/firebase/FirebaseConfig";
 import { signOut } from "firebase/auth";
 import Cookies from "js-cookie";
 import { BsCartCheck } from "react-icons/bs";
-import { NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { IoIosHeartEmpty } from "react-icons/io";
 import { IoPersonCircleOutline } from "react-icons/io5";
 import { MdOutlinePowerSettingsNew } from "react-icons/md";
 import { useSelector } from "react-redux";
 import { IoBagCheckOutline } from "react-icons/io5";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useEffect, useState } from "react";
+import { collection, getDocs } from "firebase/firestore";
+
+
+
 
 const Navbar = () => {
-
   const isLoggedIn = !!Cookies.get("user_token");
   const navigate = useNavigate();
   const totalQuantity = useSelector((state: any) => state.cart.totalQuantity);
+  const [product, setProduct] = useState<any>({});
+  console.log("product--", product);
+  const [searchText, setSearchText] = useState("");
+  const [category, setCategory] = useState("");
+  const [filteredProducts, setFilteredProducts] = useState<any>([]);
+  console.log("category--", category);
+  console.log("filteredProducts--", filteredProducts);
 
   // Retrieve and parse user data from cookies
   const userData = Cookies.get("user") ? JSON.parse(Cookies.get("user")!) : null;
   // console.log("User data: ", userData);
+
+  const fetchproduct = async () => {
+    const productRef = collection(db, "products");
+    const querySnapshot = await getDocs(productRef);
+    const data = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    console.log("data--", data);
+    setProduct(data);
+  }
+
+ 
+  const handleCategory = (category: string) => {
+    setCategory(category);
+    const filteredProducts = product.filter((product: any) =>
+      product.category.toLowerCase().includes(category.toLowerCase())
+    );
+    console.log("filteredProducts selected category--", filteredProducts);
+    setFilteredProducts(filteredProducts);
+  };
+
+  const handleSearch = (e: any) => {
+    setSearchText(e.target.value);
+
+    const filteredProducts = product.filter((product:any) =>
+      product.name.toLowerCase().includes(searchText.toLowerCase())
+    );
+    console.log("filteredProducts--", filteredProducts);
+    setFilteredProducts(filteredProducts);
+  };
+
+
+
 
   const handleLogout = async () => {
     Cookies.remove("user_id")
@@ -29,28 +71,37 @@ const Navbar = () => {
     navigate("/login");
   };
 
+useEffect(() => {
+  fetchproduct();
+  
+}, []);
+
   return (
     <>
       <nav className="bg-gray-800 text-white w-full p-2 shadow">
         <div className="flex justify-between items-center gap-2 text-sm">
-          <div className="flex justify-between items-center gap-2">
-            <NavLink to="/">ECommerce</NavLink>
-            <NavLink to="/" className="text-white flex justify-center items-center">
+          <ul className="flex  items-center gap-2">
+            <Link to="/" onClick={()=>handleCategory("all")} className="text-white flex justify-center items-center cursor-pointer">Ecommcerce</Link>
+            <li onClick={()=>handleCategory("men")}  className="text-white flex justify-center items-center cursor-pointer">
               Men
-            </NavLink>
-            <NavLink to="/" className="text-white flex justify-center items-center">
+            </li>
+            <li onClick={()=>handleCategory("women")} className="text-white flex justify-center items-center cursor-pointer">
               Women
-            </NavLink>
-            <NavLink to="/" className="text-white flex justify-center items-center">
+            </li>
+            <li onClick={()=>handleCategory("electronics")} className="text-white flex justify-center items-center cursor-pointer">
               Electronics
-            </NavLink>
-          </div>
+            </li>
+          </ul>
+          <div>
+            <Input placeholder="Search..." className="w-[200%]"
+                onChange={handleSearch}
+                value={searchText}
+                />
+            </div>
 
           {isLoggedIn ? (
             <div className="flex items-center gap-4">
-              <div>
-                <Input placeholder="Search..." className="w-full" />
-              </div>
+              
               <div className="text-xl">
                 <NavLink to="/wishlist">
                 <IoIosHeartEmpty />
@@ -96,6 +147,7 @@ const Navbar = () => {
             </div>
           ) : (
             <div className="flex items-center gap-4">
+              
               <NavLink to="/login" className=" flex justify-center items-center">
                 Login
               </NavLink>

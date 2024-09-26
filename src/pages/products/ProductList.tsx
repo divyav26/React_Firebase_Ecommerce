@@ -8,6 +8,8 @@ import { addToCart } from '@/redux/slice/CartSlice';
 import { addToWishlist } from '@/redux/slice/whishlistSlice';
 import { showErrorToast, showSuccessToast } from '@/commanComponents/CommanToast';
 import { FaRegHeart } from "react-icons/fa";
+import { useNavigate } from 'react-router-dom';
+import Cookies from 'js-cookie';
 
 // For accessing logged-in user info
 
@@ -29,7 +31,10 @@ const ProductsList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const user = auth.currentUser;
+  console.log("user---", user)
+  const isLoging = Cookies.get("user_token");
 
   const fetchProducts = async () => {
     try {
@@ -52,8 +57,9 @@ const ProductsList = () => {
  
 
   const handleAddToCart = async (product: Product) => {
-    if (!user) {
-      showErrorToast('User Not Login!!!.');
+    if (!isLoging) {
+      showErrorToast('User not logged in! Redirecting to login page.');
+      navigate('/login'); // Redirect to login page if not logged in
       return;
     }
     const cartItem = {
@@ -109,7 +115,7 @@ const ProductsList = () => {
   
 
   const handleAddToWishlist = async (product: Product) => {
-    if (!user) {
+    if (!isLoging) {
       showErrorToast('User Not Login!!!.');
       return;
     }
@@ -140,7 +146,6 @@ const ProductsList = () => {
   };
 
   useEffect(() => {
-
     fetchProducts();
   }, []);
 

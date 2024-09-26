@@ -96,7 +96,10 @@ const Wishlist: React.FC = () => {
     <Layout>
       {
         wishlistProducts.length ===0 ?
-          (<div className='h-screen'>Your wishlist is empty.</div>)
+          (<div className='h-screen flex flex-col items-center justify-center'>
+            <img src="https://cdn2.iconfinder.com/data/icons/e-commerce-277/512/wish-list-web-shopping-ecommerce-512.png" alt="empty wishlist" className='w-[300px] h-[300px] object-cover' />
+            <p className='text-2xl font-bold'>Your wishlist is empty.</p>
+          </div>)
           : (
 
       <div>

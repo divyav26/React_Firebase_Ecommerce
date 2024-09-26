@@ -164,10 +164,11 @@ const Cart: React.FC = () => {
         cartItems.length === 0 ?
           (<div className="flex justify-center items-center min-h-screen w-full">
             <div className='flex flex-col items-center justify-center'>
-            <iframe 
+            {/* <iframe 
               src="https://lottie.host/embed/ad7bdf26-4252-46ad-b81c-f99e939b71ce/dJ9imK28gY.json" 
               className=" w-[300px] h-[300px]"
-            ></iframe>
+            ></iframe> */}
+            <img src='https://cdni.iconscout.com/illustration/free/thumb/empty-cart-4085814-3385483.png' alt='empty cart' className='w-[300px] h-[300px] object-cover' />
             <p className='text-2xl font-bold'>Your cart is empty.</p>
             </div>
           </div>
