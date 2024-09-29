@@ -7,6 +7,7 @@ import { showSuccessToast, showErrorToast } from '@/commanComponents/CommanToast
 import Layout from '../layout/Layout';
 import { useNavigate } from 'react-router-dom';
 
+
 interface CartItem {
   id: string;
   name: string;
@@ -168,8 +169,10 @@ const Cart: React.FC = () => {
               src="https://lottie.host/embed/ad7bdf26-4252-46ad-b81c-f99e939b71ce/dJ9imK28gY.json" 
               className=" w-[300px] h-[300px]"
             ></iframe> */}
-            <img src='https://cdni.iconscout.com/illustration/free/thumb/empty-cart-4085814-3385483.png' alt='empty cart' className='w-[300px] h-[300px] object-cover' />
-            <p className='text-2xl font-bold'>Your cart is empty.</p>
+            <img src='https://rukminim2.flixcart.com/www/800/800/promos/16/05/2019/d438a32e-765a-4d8b-b4a6-520b560971e8.png?q=90' alt='empty cart' className='w-[200px] h-[200px] object-contain' />
+            <p className='text-sm font-bold'>Missing Cart items?</p>
+           <p className='text-xs'> Login to see the items you added previously</p>
+            <button onClick={() => navigate('/login')} className='mt-4 px-4'>Login</button>
             </div>
           </div>
     )

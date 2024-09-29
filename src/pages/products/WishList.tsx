@@ -87,7 +87,10 @@ const Wishlist: React.FC = () => {
   }, [user]);
 
   if (loading) {
-    return <div>Loading wishlist...</div>;
+    return <div><div className="flex flex-col items-center justify-center h-screen space-y-4">
+    <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-500"></div>
+    <p className="text-lg text-gray-500">Loading, please wait...</p>
+  </div></div>;
   }
 
  
@@ -97,8 +100,9 @@ const Wishlist: React.FC = () => {
       {
         wishlistProducts.length ===0 ?
           (<div className='h-screen flex flex-col items-center justify-center'>
-            <img src="https://cdn2.iconfinder.com/data/icons/e-commerce-277/512/wish-list-web-shopping-ecommerce-512.png" alt="empty wishlist" className='w-[300px] h-[300px] object-cover' />
-            <p className='text-2xl font-bold'>Your wishlist is empty.</p>
+            <img src="https://static-assets-web.flixcart.com/fk-p-linchpin-web/fk-cp-zion/img/mywishlist-empty_39f7a5.png" alt="empty wishlist" className='w-[200px] h-[200px] object-contain' />
+           <p className='text-sm'>Empty Wishlist</p> 
+            <p className='text-xs'>You have no items in your wishlist. Start adding!</p>
           </div>)
           : (
 

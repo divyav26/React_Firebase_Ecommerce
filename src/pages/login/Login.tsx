@@ -49,7 +49,7 @@ const Login = () => {
         // Navigate based on user role
         if (isAdmin) {
           // console.log("Navigating to /admin/dashboard");
-          navigate("/admin/dashboard/Home");
+          navigate("/adminhome/dashboard");
           showSuccessToast('Login successful!');
         } else {
           // console.log("Navigating to /");
@@ -67,6 +67,12 @@ const Login = () => {
       showErrorToast(`Login failed. ${error.message}`);
     }
   };
+
+  // useEffect(() => {
+	// 	Cookies.remove("user_id")
+  //   Cookies.remove("user_token");
+  //   Cookies.remove("user"); 
+	// }, []);
 
   return (
     <Layout>

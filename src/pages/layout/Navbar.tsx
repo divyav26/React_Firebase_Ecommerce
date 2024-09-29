@@ -6,62 +6,78 @@ import { BsCartCheck } from "react-icons/bs";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { IoIosHeartEmpty } from "react-icons/io";
 import { IoPersonCircleOutline } from "react-icons/io5";
-import { MdOutlinePowerSettingsNew } from "react-icons/md";
-import { useSelector } from "react-redux";
+import { MdOutlineEmail, MdOutlinePowerSettingsNew } from "react-icons/md";
+import { useSelector, useDispatch } from "react-redux";
 import { IoBagCheckOutline } from "react-icons/io5";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { collection, getDocs } from "firebase/firestore";
-
-
+import { setProducts, filterByCategory, searchProducts } from "@/redux/slice/productSlice"; // Import actions
+import { Separator } from "@/components/ui/separator";
 
 
 const Navbar = () => {
   const isLoggedIn = !!Cookies.get("user_token");
   const navigate = useNavigate();
+  const dispatch = useDispatch(); // Initialize dispatch
   const totalQuantity = useSelector((state: any) => state.cart.totalQuantity);
-  const [product, setProduct] = useState<any>({});
-  console.log("product--", product);
-  const [searchText, setSearchText] = useState("");
-  const [category, setCategory] = useState("");
-  const [filteredProducts, setFilteredProducts] = useState<any>([]);
-  console.log("category--", category);
-  console.log("filteredProducts--", filteredProducts);
+  // const wishlistItems = useSelector((state: any) => state?.wishlist?.items || []); 
+  // const wishlistCount = wishlistItems.length;
 
-  // Retrieve and parse user data from cookies
   const userData = Cookies.get("user") ? JSON.parse(Cookies.get("user")!) : null;
-  // console.log("User data: ", userData);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
-  const fetchproduct = async () => {
-    const productRef = collection(db, "products");
-    const querySnapshot = await getDocs(productRef);
-    const data = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-    console.log("data--", data);
-    setProduct(data);
+  const handleMouseEnter = () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    setIsDropdownOpen(true)
   }
 
- 
+  const handleMouseLeave = () => {
+    timeoutRef.current = setTimeout(() => {
+      setIsDropdownOpen(false)
+    }, 300) // 300ms delay before closing
+  }
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    }
+  }, [])
+  const fetchProducts = async () => {
+    const productRef = collection(db, "products");
+    const querySnapshot = await getDocs(productRef);
+
+    const data = querySnapshot.docs.map((doc) => {
+      const productData = doc.data();
+      return {
+        id: doc.id,
+        name: productData.name,
+        category: productData.category,
+        price: productData.price,
+        img: productData.img,
+        discountedPrice: productData.discountedPrice,
+        costPrice: productData.costPrice,
+        description: productData.description,
+        brand: productData.brand,
+        quantity: productData.quantity,
+        
+        // Add any other necessary properties here
+      };
+    });
+  
+    dispatch(setProducts(data)); // Dispatch setProducts action
+  };
+  
+
   const handleCategory = (category: string) => {
-    setCategory(category);
-    const filteredProducts = product.filter((product: any) =>
-      product.category.toLowerCase().includes(category.toLowerCase())
-    );
-    console.log("filteredProducts selected category--", filteredProducts);
-    setFilteredProducts(filteredProducts);
+    dispatch(filterByCategory(category)); // Dispatch filterByCategory action
   };
 
   const handleSearch = (e: any) => {
-    setSearchText(e.target.value);
-
-    const filteredProducts = product.filter((product:any) =>
-      product.name.toLowerCase().includes(searchText.toLowerCase())
-    );
-    console.log("filteredProducts--", filteredProducts);
-    setFilteredProducts(filteredProducts);
+    dispatch(dispatch(searchProducts(e.target.value))); // Dispatch filterProducts action
   };
-
-
-
 
   const handleLogout = async () => {
     Cookies.remove("user_id")
@@ -71,51 +87,56 @@ const Navbar = () => {
     navigate("/login");
   };
 
-useEffect(() => {
-  fetchproduct();
-  
-}, []);
+  useEffect(() => {
+    fetchProducts();
+  }, []);
 
   return (
     <>
-      <nav className="bg-gray-800 text-white w-full p-2 shadow">
+      <nav className="bg-white-800 text-black w-full p-2 shadow">
+        
         <div className="flex justify-between items-center gap-2 text-sm">
-          <ul className="flex  items-center gap-2">
-            <Link to="/" onClick={()=>handleCategory("all")} className="text-white flex justify-center items-center cursor-pointer">Ecommcerce</Link>
-            <li onClick={()=>handleCategory("men")}  className="text-white flex justify-center items-center cursor-pointer">
-              Men
-            </li>
-            <li onClick={()=>handleCategory("women")} className="text-white flex justify-center items-center cursor-pointer">
-              Women
-            </li>
-            <li onClick={()=>handleCategory("electronics")} className="text-white flex justify-center items-center cursor-pointer">
-              Electronics
-            </li>
-          </ul>
-          <div>
-            <Input placeholder="Search..." className="w-[200%]"
-                onChange={handleSearch}
-                value={searchText}
-                />
+          <ul className="flex items-center gap-4"> 
+            <div className="text-lg flex items-center gap-1 cursor-pointer" onClick={() => handleCategory("all")}>
+              <img src="https://www.loudmouth-media.com/media/1652/e-commerce-large-01.png" alt="FashionNest" className="w-5 h-6 rounded-full object-cover" />
+            <Link to="/" className="text-blue-500 font-bold">FashionNest</Link>
             </div>
+            <li onClick={() => handleCategory("men")} className="text-black font-semibold flex justify-center items-center cursor-pointer">Men</li>
+            <li onClick={() => handleCategory("women")} className="text-black font-semibold flex justify-center items-center cursor-pointer">Women</li>
+            <li onClick={() => handleCategory("electronics")} className="text-black font-semibold flex justify-center items-center cursor-pointer">Electronics</li>
+            <li onClick={() => handleCategory("Jewellery")} className="text-black font-semibold flex justify-center items-center cursor-pointer">Jewellery</li>
+          </ul>
 
           {isLoggedIn ? (
             <div className="flex items-center gap-4">
-              
+                        <div>
+            <Input placeholder="Search..." className="w-[100%]"
+              onChange={handleSearch}
+            />
+          </div>
               <div className="text-xl">
-                <NavLink to="/wishlist">
-                <IoIosHeartEmpty />
+                <NavLink to="/wishlist" className="relative text-black text-lg flex justify-center items-center">
+                  <IoIosHeartEmpty className="text-xl" />
+                  {/* {wishlistCount > 0 && (
+                    <span className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 bg-red-600 text-black text-xs p-1 font-bold rounded-full h-4 w-4 flex items-center justify-center">
+                      {wishlistCount}
+                    </span>
+                  )} */}
                 </NavLink>
               </div>
-              <NavLink to="/cart" className="text-white text-lg flex justify-center items-center">
-                <BsCartCheck />
-                <span className="text-sm text-white">({totalQuantity})</span>
+
+              <NavLink to="/cart" className="relative text-black text-lg flex justify-center items-center">
+                <BsCartCheck className="text-xl" />
+                {totalQuantity > 0 && (
+                  <span className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 bg-red-600 text-black text-xs p-2 font-bold rounded-full h-3 w-3 flex items-center justify-center">
+                    {totalQuantity}
+                  </span>
+                )}
               </NavLink>
-              <NavLink to="/orderhistory" className="text-white text-lg flex justify-center items-center">
-                <IoBagCheckOutline />
-              
+              <NavLink to="/orderhistory" className="text-black text-lg flex justify-center items-center">
+                <IoBagCheckOutline className="text-2xl" />
               </NavLink>
-                <DropdownMenu>
+              <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <div className=" p-1 rounded cursor-pointer hover:text-text-red transition-all ">
                 <IoPersonCircleOutline className="text-xl  " />
@@ -124,11 +145,8 @@ useEffect(() => {
             <DropdownMenuContent className="w-56" align="end" forceMount>
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col text-xs ">
-                  <p className="text-xs font-semibold mb-1">
-                    {userData?.full_name}
-                  </p>
-                  <p className=" flex items-center gap-1 ">
-                    {/* <MdOutlineEmail className="text-base  " /> */}
+                  <p className="flex  items-center gap-1 ">
+                    <MdOutlineEmail className="text-base text-center text-red-700 " />
 
                     <span>{userData?.email}</span>
                   </p>
@@ -146,18 +164,48 @@ useEffect(() => {
                </DropdownMenu>
             </div>
           ) : (
-            <div className="flex items-center gap-4">
-              
-              <NavLink to="/login" className=" flex justify-center items-center">
-                Login
-              </NavLink>
-              <NavLink to="/register" className=" flex justify-center items-center">
-                Register
-              </NavLink>
+            <>
+            <div className="hidden md:flex md:items-center">
+            <div>
+            <Input placeholder="Search..." className="w-[100%]"
+              onChange={handleSearch}
+            />
+          </div>
+            <div 
+              className="relative"
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
+              ref={dropdownRef}
+            >
+              <button className="p-2 text-black hover:text-blue-600 transition-colors duration-200 flex items-center">
+              <IoPersonCircleOutline className="text-2xl" />
+              </button>
+              {isDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
+                  <Link
+                    to="/login"
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    to="/register"
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    Register
+                  </Link>
+                </div>
+              )}
             </div>
+            <Link to="/cart" className="p-2 text-black hover:text-blue-600 transition-colors duration-200">
+            <BsCartCheck className="text-2xl" />
+            </Link>
+          </div>
+            </>
           )}
         </div>
       </nav>
+      <Separator />
     </>
   );
 };

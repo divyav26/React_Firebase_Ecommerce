@@ -1,14 +1,20 @@
-import Layout from "../layout/Layout"
+import Footer from "../layout/Footer"
+import Navbar from "../layout/Navbar"
+
 import ProductsList from "../products/ProductList"
+// import Navbar from "./Navbar"
 
 
 const Home = () => {
   return (
-    <Layout>
+    <>
+    
+    <Navbar />
       <div className="">
        <ProductsList />
       </div>
-    </Layout>
+    <Footer />
+    </>
   )
 }
 

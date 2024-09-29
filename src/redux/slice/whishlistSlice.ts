@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
+
 interface WishlistItem {
   id: string;
   name: string;
@@ -11,10 +12,14 @@ interface WishlistItem {
 
 interface WishlistState {
   items: WishlistItem[];
+  countwishlist: number;
+
 }
 
 const initialState: WishlistState = {
   items: [],
+  countwishlist: 0,
+
 };
 
 const wishlistSlice = createSlice({
@@ -36,9 +41,11 @@ const wishlistSlice = createSlice({
     clearWishlist: (state) => {
       state.items = [];
     },
+    setWishlistCount: (state, action: PayloadAction<number>) => {   
+      state.countwishlist = action.payload;
+    }
   },
 });
 
-export const { addToWishlist, removeFromWishlist, clearWishlist } = wishlistSlice.actions;
-export const selectWishlistCount = (state: any) => state.wishlist.items.length;
+export const { addToWishlist, removeFromWishlist, clearWishlist, setWishlistCount } = wishlistSlice.actions;
 export default wishlistSlice.reducer;

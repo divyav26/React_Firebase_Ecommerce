@@ -11,28 +11,31 @@ import WishList from './pages/products/WishList'
 import AdminHome from './pages/admin/dashboard/AdminHome'
 import Orders from './pages/products/Orders'
 import OrderHistory from './pages/products/OrderHistory'
+import Cookies from 'js-cookie'
+import Protected from './pages/protected/Protected'
+import Dashboard from './pages/admin/dashboard/Dashboard'
 function App() {
 
+  const useData = Cookies.get("user") ? JSON.parse(Cookies.get("user")!) : null;
+  console.log("useData-- App", useData);
 
   return (
     <>
     <BrowserRouter>
       <Routes>
+        <Route path="/adminhome" element={<Protected Component={AdminHome}/>}>
+        <Route path='dashboard' element={<Protected Component={Dashboard} />} />
+          <Route path="addproducts" element={<Protected Component={AddProducts} />} />
+          <Route path="orders" element={<Protected Component={OrdersList} />} />
+        </Route>
+
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path='/cart' element={<Cart />} />
-        <Route path="/wishlist" element={<WishList />} />
-        <Route path="/order/:orderId" element={<Orders />} />
-        <Route path="/orderhistory" element={<OrderHistory />} />
-        <Route path='/admin/dashboard/addproducts' element={<AddProducts />} />
-
-        <Route path="/admin/dashboard/Home" element={<AdminHome/>}>
-          {/* Default page when /admin/dashboard is accessed */}
-          {/* <Route index element={<AddProducts />} /> */}
-          <Route path="addproducts" element={<AddProducts />} />
-          <Route path="orders" element={<OrdersList />} />
-        </Route>
+        <Route path='/cart' element={<Protected Component={Cart} />} />
+        <Route path="/wishlist" element={<Protected Component={WishList} />} />
+        <Route path="/order/:orderId" element={<Protected Component={Orders} />} />
+        <Route path="/orderhistory" element={<Protected Component={OrderHistory} />} />        
       </Routes>
      
     </BrowserRouter>

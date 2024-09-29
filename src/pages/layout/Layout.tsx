@@ -9,7 +9,7 @@ const Layout = ({ children }: LayoutProps) => {
   return (
     <div>
       <Navbar />
-      <div className='w-full'>
+      <div className='w-full z-10'>
         {children}
       </div>
       <Footer />
